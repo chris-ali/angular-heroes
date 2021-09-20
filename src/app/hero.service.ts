@@ -1,27 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators'
 
 import { Hero } from './hero';
-import { MessageService } from './message.service';
+import { LogMessageService } from './logmessage.service';
+import { BaseService } from './base.service';
+import { LogMessage } from './logmessage';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HeroService {
-
-  httpOptions = {
-    headers: new HttpHeaders({'Content-Type': 'application/json'})
-  };
+export class HeroService extends BaseService {
 
   // URL to web API
-  private heroesUrl = 'api/heroes';
+  private heroesUrl = `${this.baseUrl}heroes`;
   
   constructor(
     private http: HttpClient, 
-    private messageService: MessageService
-  ) { }
+    private messageService: LogMessageService
+  ) {
+    super();
+  }
 
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl, this.httpOptions)
@@ -66,11 +66,18 @@ export class HeroService {
   }
 
   // Logs a HeroService message with the MessageService
-  private log(message: string) {
-    this.messageService.add(`HeroService: ${message}`)
+  protected log(message: string) {
+    let messageObj: LogMessage = {
+      contents: `HeroService: ${message}`,
+      id: 0,
+      createdBy: 'chris',
+      createdDate: new Date()
+    };
+
+    this.messageService.addMessage(messageObj);
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
+  protected handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       // TODO: send error to remote logger
       console.error(error);
