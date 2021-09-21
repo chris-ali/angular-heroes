@@ -12,7 +12,7 @@ import { LogMessage } from './logmessage';
 export class LogMessageService extends BaseService {
   
   // URL to web API
-  private messagesUrl = `${this.baseUrl}messages`;
+  private messagesUrl = `${this.baseUrl}LogMessages`;
 
   constructor(private http: HttpClient) {
     super();
@@ -27,7 +27,7 @@ export class LogMessageService extends BaseService {
   }
 
   getMessages(): Observable<LogMessage[]> {
-    const url = `${this.messagesUrl}`;
+    const url = `${this.messagesUrl}/${'chris'}`;
     return this.http.get<LogMessage[]>(url, this.httpOptions)
       .pipe(
         tap(_ => this.log('getting messages')),
@@ -36,11 +36,11 @@ export class LogMessageService extends BaseService {
   }
 
   clearMessages(): Observable<LogMessage[]> {
-    const url = `${this.messagesUrl}`;
+    const url = `${this.messagesUrl}/${'chris'}`;
     return this.http.delete<LogMessage[]>(url, this.httpOptions)
       .pipe(
         tap(_ => this.log('cleared messages')),
-        catchError(this.handleError<LogMessage[]>('getMessages'))
+        catchError(this.handleError<LogMessage[]>('clearMessages'))
       );
   }
 

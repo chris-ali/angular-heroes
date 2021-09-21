@@ -4,7 +4,7 @@ namespace angular_heroes.Models
 {
     public class BaseEntity
     {
-        public string id { get; set; }
+        public int id { get; set; }
 
         public string createdBy { get; set; }
 

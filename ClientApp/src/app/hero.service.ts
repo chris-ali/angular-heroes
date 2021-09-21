@@ -14,7 +14,7 @@ import { LogMessage } from './logmessage';
 export class HeroService extends BaseService {
 
   // URL to web API
-  private heroesUrl = `${this.baseUrl}heroes`;
+  private heroesUrl = `${this.baseUrl}Heroes`;
   
   constructor(
     private http: HttpClient, 
@@ -74,7 +74,7 @@ export class HeroService extends BaseService {
       createdDate: new Date()
     };
 
-    this.messageService.addMessage(messageObj);
+    this.messageService.addMessage(messageObj).subscribe();
   }
 
   protected handleError<T>(operation = 'operation', result?: T) {
