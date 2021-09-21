@@ -8,7 +8,7 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "name": "Launch localhost",
+            "name": "Launch localhost on Firefox",
             "url": "http://localhost:5001",
             "webRoot": "${workspaceFolder}"
         },
@@ -17,6 +17,5 @@
             "type": "coreclr",
             "request": "attach"
         }
-
     ]
 }

@@ -1,41 +1,46 @@
-﻿using System;
+﻿using angular_heroes.Data;
+using angular_heroes.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using angular_heroes.Data;
-using angular_heroes.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace angular_heroes.Controllers
 {
     public class HeroesController : BaseAngularHeroesController
     {
-        public HeroesController(ILogger<HeroesController> logger) : base(logger)
-        {}
+        private readonly HeroContext context;
+
+        public HeroesController(ILogger<HeroesController> logger, HeroContext context) : base(logger)
+        {
+            this.context = context;
+            context.Database.EnsureCreated();
+        }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Hero>> GetAll()
+        public async Task<ActionResult<IEnumerable<Hero>>> GetAll()
         {
-            var data = MockDataBase.heroes;
+            var data = await context.Heroes.ToListAsync();
             logger.LogDebug($"Found {data.Count} heroes to return...");
 
             return data;
         }
 
         /* [HttpGet("{createdBy}")]
-        public ActionResult<IEnumerable<Hero>> GetManyByCreatedBy(string createdBy)
+        public async Task<ActionResult<IEnumerable<Hero>>> GetManyByCreatedBy(string createdBy)
         {
-            var data = MockDataBase.heroes.FindAll(x => x.createdBy == createdBy);
+            var data = context.Heros.Where(x => x.createdBy == createdBy).ToListAsync();
             logger.LogDebug($"Found {data.Count} heroes to return for user {createdBy}...");
 
             return data;
         } */
 
         [HttpGet("{id}")]
-        public ActionResult<Hero> GetOne(int id)
+        public async Task<ActionResult<Hero>> GetOne(int id)
         {
-            var data = MockDataBase.heroes.Find(x => x.id == id);
+            var data = await context.FindAsync<Hero>(id);
             
             if (data != null)
                 logger.LogDebug($"Found hero: {data.id} - {data.name} to return...");
@@ -46,58 +51,58 @@ namespace angular_heroes.Controllers
         }
 
         [HttpPut]
-        public ActionResult<Hero> Update(Hero hero)
+        public async Task<ActionResult<Hero>> Update(Hero hero)
         {
-            var data = MockDataBase.heroes.Find(x => x.id == hero.id);
+            var data = await context.FindAsync<Hero>(hero.id);
 
-            if (data != null) 
-            {
-                logger.LogDebug($"Found hero: {data.id} - {data.name} to update...");
-                MockDataBase.heroes.Remove(data);
-                MockDataBase.heroes.Add(hero);
-                logger.LogDebug($"...updated successfully!");
-
-                return NoContent();
-            }
-            else 
+            if (data == null) 
             {
                 logger.LogWarning($"No hero found for id: {hero.id}");
 
                 return NotFound();
             }
+            
+            logger.LogDebug($"Found hero: {data.id} - {data.name} to update...");
+            
+            context.Update<Hero>(hero);
+            await context.SaveChangesAsync();
+
+            logger.LogDebug($"...updated successfully!");
+
+            return NoContent();
         }
 
         [HttpPost]
-        public ActionResult<Hero> Create(Hero hero)
+        public async Task<ActionResult<Hero>> Create(Hero hero)
         {
-            hero.id = MockDataBase.getNextHeroId();
-            logger.LogDebug($"New hero id is: {hero.id}");
+            await context.AddAsync<Hero>(hero);
+            await context.SaveChangesAsync();
 
-            MockDataBase.heroes.Add(hero);
             logger.LogDebug($"Added new hero: {hero.id} - {hero.name}!");
 
             return CreatedAtAction(nameof(GetOne), hero.id, hero);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Hero> Delete(int id)
+        public async Task<ActionResult<Hero>> Delete(int id)
         {
-            var data = MockDataBase.heroes.Find(x => x.id == id);
+            var data = await context.FindAsync<Hero>(id);
 
-            if (data != null) 
-            {
-                logger.LogDebug($"Found hero: {data.id} - {data.name} to delete...");
-                MockDataBase.heroes.Remove(data);
-                logger.LogDebug($"...deleted successfully!");
-
-                return NoContent();
-            }
-            else 
+            if (data == null) 
             {
                 logger.LogWarning($"No hero found to delete for id: {id}!");
 
                 return NotFound();
             }
+            
+            logger.LogDebug($"Found hero: {data.id} - {data.name} to delete...");
+
+            context.Remove(data);
+            await context.SaveChangesAsync();
+            
+            logger.LogDebug($"...deleted successfully!");
+
+            return NoContent();
         }
     }
 }

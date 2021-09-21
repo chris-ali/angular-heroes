@@ -1,3 +1,4 @@
+using angular_heroes.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace angular_heroes
 {
@@ -21,6 +23,11 @@ namespace angular_heroes
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            // Add temp in memory databases; remove these when 
+            services.AddDbContext<HeroContext>(opt => opt.UseInMemoryDatabase("Hero"));
+            services.AddDbContext<LogMessageContext>(opt => opt.UseInMemoryDatabase("LogMessage"));
+
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

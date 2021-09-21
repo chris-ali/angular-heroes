@@ -1,32 +1,37 @@
-﻿using System;
+﻿using angular_heroes.Data;
+using angular_heroes.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using angular_heroes.Data;
-using angular_heroes.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace angular_heroes.Controllers
 {
     public class LogMessagesController : BaseAngularHeroesController
     {
-        public LogMessagesController(ILogger<LogMessagesController> logger) : base(logger)
-        {}
+        private readonly LogMessageContext context;
+
+        public LogMessagesController(ILogger<LogMessagesController> logger, LogMessageContext context) : base(logger)
+        {
+            this.context = context;
+            context.Database.EnsureCreated();
+        }
 
         [HttpGet("{createdBy}")]
-        public ActionResult<IEnumerable<LogMessage>> GetManyByCreatedBy(string createdBy)
+        public async Task<ActionResult<IEnumerable<LogMessage>>> GetManyByCreatedBy(string createdBy)
         {
-            var data = MockDataBase.messages.FindAll(x => x.createdBy == createdBy);
+            var data = await context.Messages.Where(x => x.createdBy == createdBy).ToListAsync();
             logger.LogDebug($"Found {data.Count} messages to return for user {createdBy}...");
 
             return data;
         }
 
         /* [HttpGet("{id}")]
-        public ActionResult<LogMessage> GetOne(int id)
+        public async Task<ActionResult<LogMessage>> GetOne(int id)
         {
-            var data = MockDataBase.messages.Find(x => x.id == id);
+            var data = await context.Find<LogMessage>(id);
             
             if (data != null)
                 logger.LogDebug($"Found message id: {data.id} to return...");
@@ -37,79 +42,80 @@ namespace angular_heroes.Controllers
         } */
 
         [HttpPut]
-        public ActionResult<LogMessage> Update(LogMessage message)
+        public async Task<ActionResult<LogMessage>> Update(LogMessage message)
         {
             var data = MockDataBase.messages.Find(x => x.id == message.id);
 
-            if (data != null) 
-            {
-                logger.LogDebug($"Found message id: {data.id} to update...");
-                MockDataBase.messages.Remove(data);
-                MockDataBase.messages.Add(message);
-                logger.LogDebug($"...updated successfully!");
-
-                return NoContent();
-            }
-            else 
+            if (data == null)
             {
                 logger.LogWarning($"No message found for id: {message.id}");
 
                 return NotFound();
             }
+             
+            logger.LogDebug($"Found message id: {data.id} to update...");
+            
+            context.Update(message);
+            await context.SaveChangesAsync();
+
+            logger.LogDebug($"...updated successfully!");
+
+            return NoContent();
         }
 
         [HttpPost]
-        public ActionResult<LogMessage> Create(LogMessage message)
+        public async Task<ActionResult<LogMessage>> Create(LogMessage message)
         {
-            message.id = MockDataBase.getNextHeroId();
-            logger.LogDebug($"New message id is: {message.id}");
+            await context.AddAsync<LogMessage>(message);
+            await context.SaveChangesAsync();
 
-            MockDataBase.messages.Add(message);
             logger.LogDebug($"Added new message: {message.id} - {message.contents}!");
 
             return CreatedAtAction(nameof(GetManyByCreatedBy), message.id, message);
         }
 
         /*[HttpDelete("{id}")]
-        public ActionResult<LogMessage> DeleteOne(int id)
+        public async Task<ActionResult<LogMessage>> DeleteOne(int id)
         {
-            var data = MockDataBase.messages.Find(x => x.id == id);
+            var data = MockDataBase.messages.Find(x => x.id == message.id);
 
-            if (data != null) 
-            {
-                logger.LogDebug($"Found message: {data.id} - {data.contents} to delete...");
-                MockDataBase.messages.Remove(data);
-                logger.LogDebug($"...deleted successfully!");
-
-                return NoContent();
-            }
-            else 
+            if (data == null) 
             {
                 logger.LogWarning($"No message found to delete for id: {id}!");
 
                 return NotFound();
             }
+
+            logger.LogDebug($"Found message: {data.id} - {data.contents} to delete...");
+            
+            context.Remove(data);
+            await context.SaveChangesAsync();
+
+            logger.LogDebug($"...deleted successfully!");
+
+            return NoContent();            
         } */
 
         [HttpDelete("{createdBy}")]
-        public ActionResult<IEnumerable<LogMessage>> DeleteManyByCreatedBy(string createdBy)
+        public async Task<ActionResult<IEnumerable<LogMessage>>> DeleteManyByCreatedBy(string createdBy)
         {
-            var data = MockDataBase.messages.FindAll(x => x.createdBy == createdBy);
+            var data = context.Messages.Where(x => x.createdBy == createdBy);
 
-            if (data != null) 
-            {
-                logger.LogDebug($"Found {data.Count} messages from {createdBy} to delete...");
-                MockDataBase.messages.RemoveAll(x => x.createdBy == createdBy);
-                logger.LogDebug($"...deleted successfully!");
-
-                return NoContent();
-            }
-            else 
+            if (data == null) 
             {
                 logger.LogWarning($"No messages found to delete for user: {createdBy}!");
 
                 return NotFound();
             }
+
+            logger.LogDebug($"Found {data.Count()} messages from {createdBy} to delete...");
+            
+            context.RemoveRange(data);
+            await context.SaveChangesAsync();
+
+            logger.LogDebug($"...deleted successfully!");
+
+            return NoContent();
         }
     }
 }
