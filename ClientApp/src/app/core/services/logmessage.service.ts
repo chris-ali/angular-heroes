@@ -4,7 +4,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 import { BaseService } from './base.service';
-import { LogMessage } from './logmessage';
+import { LogMessage } from '../models/logmessage';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class LogMessageService extends BaseService {
   // URL to web API
   private messagesUrl = `${this.baseUrl}LogMessages`;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private userService: UserService) {
     super();
   }
 
@@ -27,7 +28,7 @@ export class LogMessageService extends BaseService {
   }
 
   getMessages(): Observable<LogMessage[]> {
-    const url = `${this.messagesUrl}/${'chris'}`;
+    const url = `${this.messagesUrl}/${this.userService.getCurrentUser().userName}`;
     return this.http.get<LogMessage[]>(url, this.httpOptions)
       .pipe(
         tap(_ => this.log('getting messages')),
@@ -36,7 +37,7 @@ export class LogMessageService extends BaseService {
   }
 
   clearMessages(): Observable<LogMessage[]> {
-    const url = `${this.messagesUrl}/${'chris'}`;
+    const url = `${this.messagesUrl}/${this.userService.getCurrentUser().userName}`;
     return this.http.delete<LogMessage[]>(url, this.httpOptions)
       .pipe(
         tap(_ => this.log('cleared messages')),

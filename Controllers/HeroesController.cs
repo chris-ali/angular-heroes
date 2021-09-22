@@ -63,8 +63,11 @@ namespace angular_heroes.Controllers
             }
             
             logger.LogDebug($"Found hero: {data.id} - {data.name} to update...");
+
+            data.name = hero.name;
+            data.power = hero.power;
             
-            context.Update<Hero>(hero);
+            context.Update<Hero>(data);
             await context.SaveChangesAsync();
 
             logger.LogDebug($"...updated successfully!");

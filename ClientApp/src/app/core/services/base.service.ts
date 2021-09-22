@@ -11,6 +11,6 @@ export class BaseService {
   };
 
   baseUrl = 'api/';
-
+  
   constructor() { }
 }

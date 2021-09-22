@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { LogMessage } from '../logmessage';
-import { LogMessageService } from '../logmessage.service';
+import { LogMessage } from '../core/models/logmessage';
+import { LogMessageService } from '../core/services/logmessage.service';
 
 @Component({
   selector: 'app-messages',
@@ -9,7 +9,6 @@ import { LogMessageService } from '../logmessage.service';
 })
 export class MessagesComponent implements OnInit {
 
-  createdBy: string = 'chris';
   messages: LogMessage[] = [];
 
   constructor(public messageService:LogMessageService) { }

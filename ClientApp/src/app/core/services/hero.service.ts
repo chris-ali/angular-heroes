@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators'
 
-import { Hero } from './hero';
+import { Hero } from '../models/hero';
 import { LogMessageService } from './logmessage.service';
 import { BaseService } from './base.service';
-import { LogMessage } from './logmessage';
+import { LogMessage } from '../models/logmessage';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class HeroService extends BaseService {
   
   constructor(
     private http: HttpClient, 
-    private messageService: LogMessageService
+    private messageService: LogMessageService,
+    private userService: UserService
   ) {
     super();
   }
@@ -49,6 +51,9 @@ export class HeroService extends BaseService {
   }
 
   addHero(hero: Hero): Observable<Hero> {
+    hero.createdBy = this.userService.getCurrentUser().userName;
+    hero.dateCreated = new Date();
+    
     return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions)
       .pipe(
         tap((newHero: Hero) => this.log(`added hero with id=${newHero.id}`)),
@@ -70,7 +75,7 @@ export class HeroService extends BaseService {
     let messageObj: LogMessage = {
       contents: `HeroService: ${message}`,
       id: 0,
-      createdBy: 'chris',
+      createdBy: this.userService.getCurrentUser().userName,
       createdDate: new Date()
     };
 
