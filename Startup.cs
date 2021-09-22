@@ -25,8 +25,7 @@ namespace angular_heroes
             services.AddControllersWithViews();
 
             // Add temp in memory databases; remove these when 
-            services.AddDbContext<HeroContext>(opt => opt.UseInMemoryDatabase("Hero"));
-            services.AddDbContext<LogMessageContext>(opt => opt.UseInMemoryDatabase("LogMessage"));
+            services.AddDbContext<HeroesDbContext>(opt => opt.UseInMemoryDatabase("Heroes"));
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

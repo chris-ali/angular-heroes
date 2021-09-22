@@ -11,12 +11,8 @@ namespace angular_heroes.Controllers
 {
     public class HeroesController : BaseAngularHeroesController
     {
-        private readonly HeroContext context;
-
-        public HeroesController(ILogger<HeroesController> logger, HeroContext context) : base(logger)
+        public HeroesController(ILogger<HeroesController> logger, HeroesDbContext context) : base(logger, context)
         {
-            this.context = context;
-            context.Database.EnsureCreated();
         }
 
         [HttpGet]

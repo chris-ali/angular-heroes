@@ -11,12 +11,8 @@ namespace angular_heroes.Controllers
 {
     public class LogMessagesController : BaseAngularHeroesController
     {
-        private readonly LogMessageContext context;
-
-        public LogMessagesController(ILogger<LogMessagesController> logger, LogMessageContext context) : base(logger)
+        public LogMessagesController(ILogger<LogMessagesController> logger, HeroesDbContext context) : base(logger, context)
         {
-            this.context = context;
-            context.Database.EnsureCreated();
         }
 
         [HttpGet("{createdBy}")]
@@ -31,7 +27,7 @@ namespace angular_heroes.Controllers
         /* [HttpGet("{id}")]
         public async Task<ActionResult<LogMessage>> GetOne(int id)
         {
-            var data = await context.Find<LogMessage>(id);
+            var data = await context.FindAsync<LogMessage>(id);
             
             if (data != null)
                 logger.LogDebug($"Found message id: {data.id} to return...");
@@ -44,7 +40,7 @@ namespace angular_heroes.Controllers
         [HttpPut]
         public async Task<ActionResult<LogMessage>> Update(LogMessage message)
         {
-            var data = MockDataBase.messages.Find(x => x.id == message.id);
+            var data = await context.FindAsync<LogMessage>(message.id);
 
             if (data == null)
             {
@@ -55,7 +51,9 @@ namespace angular_heroes.Controllers
              
             logger.LogDebug($"Found message id: {data.id} to update...");
             
-            context.Update(message);
+            data.contents = message.contents;
+
+            context.Update(data);
             await context.SaveChangesAsync();
 
             logger.LogDebug($"...updated successfully!");

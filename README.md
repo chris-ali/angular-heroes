@@ -1,14 +1,12 @@
 # AngularHeroes
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.6.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.6. and .NET Core 5.0
 
 ## Development server
 
-Run `npm install` and then `ng serve -o` for a dev server. The app will open in your default browser, and then automatically reload if you change any of the source files.
+To run with the .NET WebAPI backend, run `dotnet build && dotnet run` from the project root folder, then open a web browser and navigate to `https://localhost:5001/`  
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm install` and then `ng serve -o` from `./ClientApp/` for a dev server. The app will open in your default browser, and then automatically reload if you change any of the source files.
 
 ## Build
 
@@ -17,7 +15,3 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.

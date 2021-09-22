@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace angular_heroes.Data
 {
-    public class HeroContext : DbContext
+    public class HeroesDbContext : DbContext
     {
-        public HeroContext(DbContextOptions<HeroContext> options) : base(options)
+        public HeroesDbContext(DbContextOptions<HeroesDbContext> options) : base(options)
         {
         }
 
@@ -22,8 +22,11 @@ namespace angular_heroes.Data
             modelBuilder.Entity<Hero>().HasData(new Hero { id = 18, name = "Dr IQ", createdBy = "chris", createdDate = DateTime.Now });
             modelBuilder.Entity<Hero>().HasData(new Hero { id = 19, name = "Magma", createdBy = "chris", createdDate = DateTime.Now });
             modelBuilder.Entity<Hero>().HasData(new Hero { id = 20, name = "Tornado", createdBy = "chris", createdDate = DateTime.Now });
+
+            modelBuilder.Entity<LogMessage>().HasData(new LogMessage { id = 5, contents = "Test Log Message", createdBy = "chris", createdDate = DateTime.Now });
         }      
 
         public DbSet<Hero> Heroes { get; set; }
+        public DbSet<LogMessage> Messages { get; set; }
     }
 }
