@@ -1,7 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace angular_heroes.Models 
 {
     public class LogMessage : BaseEntity
     {
-        public string contents { get; set; }
+        [JsonPropertyName("contents")]
+        public string Contents { get; set; }
+        
+        [JsonIgnore]
+        public User Owner { get; set; }
     }
 }

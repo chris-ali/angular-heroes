@@ -39,7 +39,7 @@ namespace angular_heroes.Controllers
             var data = await context.FindAsync<Hero>(id);
             
             if (data != null)
-                logger.LogDebug($"Found hero: {data.id} - {data.name} to return...");
+                logger.LogDebug($"Found hero: {data.Id} - {data.Name} to return...");
             else 
                 logger.LogWarning($"No hero found for id: {id}");
 
@@ -49,19 +49,19 @@ namespace angular_heroes.Controllers
         [HttpPut]
         public async Task<ActionResult<Hero>> Update(Hero hero)
         {
-            var data = await context.FindAsync<Hero>(hero.id);
+            var data = await context.FindAsync<Hero>(hero.Id);
 
             if (data == null) 
             {
-                logger.LogWarning($"No hero found for id: {hero.id}");
+                logger.LogWarning($"No hero found for id: {hero.Id}");
 
                 return NotFound();
             }
             
-            logger.LogDebug($"Found hero: {data.id} - {data.name} to update...");
+            logger.LogDebug($"Found hero: {data.Id} - {data.Name} to update...");
 
-            data.name = hero.name;
-            data.power = hero.power;
+            data.Name = hero.Name;
+            data.Power = hero.Power;
             
             context.Update<Hero>(data);
             await context.SaveChangesAsync();
@@ -77,9 +77,9 @@ namespace angular_heroes.Controllers
             await context.AddAsync<Hero>(hero);
             await context.SaveChangesAsync();
 
-            logger.LogDebug($"Added new hero: {hero.id} - {hero.name}!");
+            logger.LogDebug($"Added new hero: {hero.Id} - {hero.Name}!");
 
-            return CreatedAtAction(nameof(GetOne), hero.id, hero);
+            return CreatedAtAction(nameof(GetOne), hero.Id, hero);
         }
 
         [HttpDelete("{id}")]
@@ -94,7 +94,7 @@ namespace angular_heroes.Controllers
                 return NotFound();
             }
             
-            logger.LogDebug($"Found hero: {data.id} - {data.name} to delete...");
+            logger.LogDebug($"Found hero: {data.Id} - {data.Name} to delete...");
 
             context.Remove(data);
             await context.SaveChangesAsync();

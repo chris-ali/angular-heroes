@@ -18,7 +18,7 @@ namespace angular_heroes.Controllers
         [HttpGet("{createdBy}")]
         public async Task<ActionResult<IEnumerable<LogMessage>>> GetManyByCreatedBy(string createdBy)
         {
-            var data = await context.Messages.Where(x => x.createdBy == createdBy).ToListAsync();
+            var data = await context.Messages.Where(x => x.CreatedBy == createdBy).ToListAsync();
             logger.LogDebug($"Found {data.Count} messages to return for user {createdBy}...");
 
             return data;
@@ -40,18 +40,18 @@ namespace angular_heroes.Controllers
         [HttpPut]
         public async Task<ActionResult<LogMessage>> Update(LogMessage message)
         {
-            var data = await context.FindAsync<LogMessage>(message.id);
+            var data = await context.FindAsync<LogMessage>(message.Id);
 
             if (data == null)
             {
-                logger.LogWarning($"No message found for id: {message.id}");
+                logger.LogWarning($"No message found for id: {message.Id}");
 
                 return NotFound();
             }
              
-            logger.LogDebug($"Found message id: {data.id} to update...");
+            logger.LogDebug($"Found message id: {data.Id} to update...");
             
-            data.contents = message.contents;
+            data.Contents = message.Contents;
 
             context.Update(data);
             await context.SaveChangesAsync();
@@ -67,9 +67,9 @@ namespace angular_heroes.Controllers
             await context.AddAsync<LogMessage>(message);
             await context.SaveChangesAsync();
 
-            logger.LogDebug($"Added new message: {message.id} - {message.contents}!");
+            logger.LogDebug($"Added new message: {message.Id} - {message.Contents}!");
 
-            return CreatedAtAction(nameof(GetManyByCreatedBy), message.id, message);
+            return CreatedAtAction(nameof(GetManyByCreatedBy), message.Id, message);
         }
 
         /*[HttpDelete("{id}")]
@@ -97,7 +97,7 @@ namespace angular_heroes.Controllers
         [HttpDelete("{createdBy}")]
         public async Task<ActionResult<IEnumerable<LogMessage>>> DeleteManyByCreatedBy(string createdBy)
         {
-            var data = context.Messages.Where(x => x.createdBy == createdBy);
+            var data = context.Messages.Where(x => x.CreatedBy == createdBy);
 
             if (data == null) 
             {

@@ -1,13 +1,17 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace angular_heroes.Models
 {
     public class BaseEntity
     {
-        public int id { get; set; }
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-        public string createdBy { get; set; }
+        [JsonPropertyName("createdBy")]
+        public string CreatedBy { get; set; }
 
-        public DateTime createdDate { get; set; }
+        [JsonPropertyName("createdDate")]
+        public DateTime CreatedDate { get; set; }
     }
 }
