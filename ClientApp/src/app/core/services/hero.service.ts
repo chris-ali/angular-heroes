@@ -1,27 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators'
 
-import { Hero } from './hero';
-import { MessageService } from './message.service';
+import { Hero } from '../models/hero';
+import { LogMessageService } from './logmessage.service';
+import { BaseService } from './base.service';
+import { LogMessage } from '../models/logmessage';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HeroService {
-
-  httpOptions = {
-    headers: new HttpHeaders({'Content-Type': 'application/json'})
-  };
+export class HeroService extends BaseService {
 
   // URL to web API
-  private heroesUrl = 'api/heroes';
+  private heroesUrl = `${this.baseUrl}Heroes`;
   
   constructor(
     private http: HttpClient, 
-    private messageService: MessageService
-  ) { }
+    private messageService: LogMessageService,
+    private userService: UserService
+  ) {
+    super();
+  }
 
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl, this.httpOptions)
@@ -49,6 +51,9 @@ export class HeroService {
   }
 
   addHero(hero: Hero): Observable<Hero> {
+    hero.createdBy = this.userService.getCurrentUser().userName;
+    hero.dateCreated = new Date();
+    
     return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions)
       .pipe(
         tap((newHero: Hero) => this.log(`added hero with id=${newHero.id}`)),
@@ -66,11 +71,18 @@ export class HeroService {
   }
 
   // Logs a HeroService message with the MessageService
-  private log(message: string) {
-    this.messageService.add(`HeroService: ${message}`)
+  protected log(message: string) {
+    let messageObj: LogMessage = {
+      contents: `HeroService: ${message}`,
+      id: 0,
+      createdBy: this.userService.getCurrentUser().userName,
+      createdDate: new Date()
+    };
+
+    this.messageService.addMessage(messageObj).subscribe();
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
+  protected handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       // TODO: send error to remote logger
       console.error(error);
