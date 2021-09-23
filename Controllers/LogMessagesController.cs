@@ -37,30 +37,6 @@ namespace angular_heroes.Controllers
             return data;
         } */
 
-        [HttpPut]
-        public async Task<ActionResult<LogMessage>> Update(LogMessage message)
-        {
-            var data = await context.FindAsync<LogMessage>(message.Id);
-
-            if (data == null)
-            {
-                logger.LogWarning($"No message found for id: {message.Id}");
-
-                return NotFound();
-            }
-             
-            logger.LogDebug($"Found message id: {data.Id} to update...");
-            
-            data.Contents = message.Contents;
-
-            context.Update(data);
-            await context.SaveChangesAsync();
-
-            logger.LogDebug($"...updated successfully!");
-
-            return NoContent();
-        }
-
         [HttpPost]
         public async Task<ActionResult<LogMessage>> Create(LogMessage message)
         {
@@ -71,28 +47,6 @@ namespace angular_heroes.Controllers
 
             return CreatedAtAction(nameof(GetManyByCreatedBy), message.Id, message);
         }
-
-        /*[HttpDelete("{id}")]
-        public async Task<ActionResult<LogMessage>> DeleteOne(int id)
-        {
-            var data = MockDataBase.messages.Find(x => x.id == message.id);
-
-            if (data == null) 
-            {
-                logger.LogWarning($"No message found to delete for id: {id}!");
-
-                return NotFound();
-            }
-
-            logger.LogDebug($"Found message: {data.id} - {data.contents} to delete...");
-            
-            context.Remove(data);
-            await context.SaveChangesAsync();
-
-            logger.LogDebug($"...deleted successfully!");
-
-            return NoContent();            
-        } */
 
         [HttpDelete("{createdBy}")]
         public async Task<ActionResult<IEnumerable<LogMessage>>> DeleteManyByCreatedBy(string createdBy)

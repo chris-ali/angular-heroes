@@ -21,12 +21,12 @@ namespace angular_heroes.Models
         public string Email { get; set; }
         
         [JsonIgnore]
-        public List<LogMessage> Messages { get; set; }
+        public virtual List<LogMessage> Messages { get; set; }
 
         [JsonIgnore]
-        public List<Hero> Heroes {get; set;}
+        public virtual List<Hero> Heroes {get; set;}
 
         [JsonIgnore]
-        public List<HeroUser> HeroUsers { get; set; }
+        public virtual List<HeroUser> HeroUsers { get; set; }
     }
 }

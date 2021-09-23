@@ -8,6 +8,9 @@ namespace angular_heroes.Models
         public string Contents { get; set; }
         
         [JsonIgnore]
-        public User Owner { get; set; }
+        public int UserIdFk { get; set; }
+        
+        [JsonIgnore]
+        public virtual User Owner { get; set; }
     }
 }

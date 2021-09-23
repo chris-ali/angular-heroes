@@ -12,9 +12,9 @@ namespace angular_heroes.Models
         public string Power { get; set; }
 
         [JsonIgnore]
-        public List<User> Users {get; set;}
-
+        public virtual List<User> Users { get; set; } = new();
+        
         [JsonIgnore]
-        public List<HeroUser> HeroUsers { get; set; }
+        public virtual List<HeroUser> HeroUsers { get; set; } = new();
     }
 }

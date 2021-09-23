@@ -24,6 +24,8 @@ namespace angular_heroes
         {
             services.AddControllersWithViews();
 
+            services.AddSwaggerGen();
+
             // Add temp in memory databases; remove these when 
             services.AddDbContext<HeroesDbContext>(opt => opt.UseInMemoryDatabase("Heroes"));
 
@@ -54,6 +56,10 @@ namespace angular_heroes
             {
                 app.UseSpaStaticFiles();
             }
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Angular Heroes API"));
 
             app.UseRouting();
 
