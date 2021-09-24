@@ -15,14 +15,10 @@ namespace angular_heroes.Requests.LogMessages
     {
         public record Command(string userName)  : IRequest<IEnumerable<LogMessage>>;
 
-        public class CommandHandler : IRequestHandler<Command, IEnumerable<LogMessage>>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, IEnumerable<LogMessage>>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<IEnumerable<LogMessage>> Handle(Command request, CancellationToken cancellationToken)
@@ -46,7 +42,7 @@ namespace angular_heroes.Requests.LogMessages
                 // logger.LogDebug($"Found {data.Count()} messages from {request.userName} to delete...");
 
                 context.RemoveRange(data);
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
                 
                 // logger.LogDebug($"...deleted successfully!");
 

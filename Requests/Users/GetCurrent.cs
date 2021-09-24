@@ -13,17 +13,13 @@ namespace angular_heroes.Requests.Users
     {
         public record Query() : IRequest<User>;
 
-        public class QueryHandler : IRequestHandler<Query, User>
+        public class QueryHandler : BaseRequest, IRequestHandler<Query, User>
         {
             private readonly ICurrentUserAccessor accessor;
-            private readonly HeroesDbContext context;
 
-            public QueryHandler(HeroesDbContext context, ICurrentUserAccessor accessor)
+            public QueryHandler(HeroesDbContext context, ICurrentUserAccessor accessor) : base(context)
             {
-                this.context = context;
                 this.accessor = accessor;
-
-                context.Database.EnsureCreated();
             }
 
             public async Task<User> Handle(Query request, CancellationToken cancellationToken)

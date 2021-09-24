@@ -15,14 +15,10 @@ namespace angular_heroes.Requests.LogMessages
     {
         public record Query(string userName) : IRequest<IEnumerable<LogMessage>>;
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<LogMessage>>
+        public class QueryHandler : BaseRequest, IRequestHandler<Query, IEnumerable<LogMessage>>
         {
-            private readonly HeroesDbContext context;
-
-            public QueryHandler(HeroesDbContext context)
+            public QueryHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<IEnumerable<LogMessage>> Handle(Query request, CancellationToken cancellationToken)
@@ -37,7 +33,7 @@ namespace angular_heroes.Requests.LogMessages
                 var data = await context.Messages
                     .Include(x => x.Owner)
                     .Where(x => x.Owner.UserName == request.userName)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 // logger.LogDebug($"Found {data.Count} messages to return for user {request.userName}...");
 

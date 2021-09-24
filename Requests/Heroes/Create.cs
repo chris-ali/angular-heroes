@@ -12,14 +12,10 @@ namespace angular_heroes.Requests.Heroes
     {
         public record Command(Hero hero) : IRequest<Hero>;
 
-        public class CommandHandler : IRequestHandler<Command, Hero>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, Hero>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<Hero> Handle(Command request, CancellationToken cancellationToken)
@@ -33,8 +29,8 @@ namespace angular_heroes.Requests.Heroes
 
                 // Add server-side validation here?
 
-                await context.AddAsync<Hero>(request.hero);
-                await context.SaveChangesAsync();
+                await context.AddAsync<Hero>(request.hero, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
 
                 // logger.LogDebug($"Added new hero: {request.hero.Id} - {request.hero.Name}!");
 

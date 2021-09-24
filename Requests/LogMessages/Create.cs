@@ -1,9 +1,12 @@
+using System;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using angular_heroes.Infrastructure;
 using angular_heroes.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace angular_heroes.Requests.LogMessages
@@ -12,34 +15,46 @@ namespace angular_heroes.Requests.LogMessages
     {
         public record Command(LogMessage message) : IRequest<LogMessage>;
 
-        public class CommandHandler : IRequestHandler<Command, LogMessage>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, LogMessage>
         {
-            private readonly HeroesDbContext context;
+            private readonly ICurrentUserAccessor accessor;
 
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context, ICurrentUserAccessor accessor) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
+                this.accessor = accessor;
             }
 
             public async Task<LogMessage> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (request.message == null) 
+                if (request.message == null)
                 {
                     var message = $"No message data found in request";
                     // logger.LogWarning(message);
-                    throw new RestException(HttpStatusCode.BadRequest, new { Message = message});
+                    throw new RestException(HttpStatusCode.BadRequest, new { Message = message });
                 }
 
                 // Add server-side validation here?
 
-                // Set current user as ownner 
-                // or use user accessor here instead
-                // var currentUser = context.Users.FindAsync(x => x.UserName == request.message.createdBy);
+                // Set current user as ownner
+                var userName = accessor.GetCurrentUserName();
+                var currentUser = await context.Users
+                    .Where(x => x.UserName == userName)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (currentUser == null)
+                {
+                    var message = $"No user found for username: {userName}";
+                    // logger.LogWarning(message);
+                    throw new RestException(HttpStatusCode.BadRequest, new { Message = message });
+                }
+
+                request.message.CreatedBy = currentUser.UserName;
+                request.message.CreatedDate = DateTime.Now;
+                request.message.Owner = currentUser;
 
                 // request.message.Owner = currentUser;
-                await context.AddAsync<LogMessage>(request.message);
-                await context.SaveChangesAsync();
+                await context.AddAsync<LogMessage>(request.message, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
 
                 // logger.LogDebug($"Added new message: {request.message.Id} - {request.message.Contents}!");
 

@@ -13,19 +13,15 @@ namespace angular_heroes.Requests.Heroes
     {
         public record Query() : IRequest<IEnumerable<Hero>>;
 
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<Hero>>
+        public class QueryHandler : BaseRequest, IRequestHandler<Query, IEnumerable<Hero>>
         {
-            private readonly HeroesDbContext context;
-
-            public QueryHandler(HeroesDbContext context)
+            public QueryHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<IEnumerable<Hero>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var data = await context.Heroes.ToListAsync();
+                var data = await context.Heroes.ToListAsync(cancellationToken);
                 // logger.LogDebug($"Found {data.Count} heroes to return...");
 
                 return data;

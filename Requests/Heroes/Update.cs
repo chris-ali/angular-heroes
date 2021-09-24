@@ -10,21 +10,17 @@ namespace angular_heroes.Requests.Heroes
 {
   public class Update
     {
-        public record Command(Hero hero)  : IRequest<Hero>;
+        public record Command(Hero hero) : IRequest<Hero>;
 
-        public class CommandHandler : IRequestHandler<Command, Hero>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, Hero>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<Hero> Handle(Command request, CancellationToken cancellationToken)
             {
-                var data = await context.FindAsync<Hero>(request.hero.Id);
+                var data = await context.FindAsync<Hero>(new object[] { request.hero.Id }, cancellationToken);
 
                 if (data == null) 
                 {
@@ -39,7 +35,7 @@ namespace angular_heroes.Requests.Heroes
                 data.Power = request.hero.Power;
                 
                 context.Update<Hero>(data);
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
 
                 // logger.LogDebug($"...updated successfully!");
 

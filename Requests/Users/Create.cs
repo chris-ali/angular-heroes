@@ -16,15 +16,10 @@ namespace angular_heroes.Requests.Users
 
         public record Command(User user) : IRequest<User>;
 
-        public class CommandHandler : IRequestHandler<Command, User>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, User>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-
-                context.Database.EnsureCreated();
             }
 
             public async Task<User> Handle(Command request, CancellationToken cancellationToken)
@@ -36,14 +31,14 @@ namespace angular_heroes.Requests.Users
                     throw new RestException(HttpStatusCode.BadRequest, new { Message = message});
                 }
 
-                if(await context.Users.Where(x => x.UserName == request.user.UserName).AnyAsync(cancellationToken))
+                if (await context.Users.Where(x => x.UserName == request.user.UserName).AnyAsync(cancellationToken))
                 {
                     var message = $"Username already exists in database";
                     // logger.LogWarning(message);
                     throw new RestException(HttpStatusCode.BadRequest, new { Message = message});
                 }
 
-                if(await context.Users.Where(x => x.Email == request.user.Email).AnyAsync(cancellationToken))
+                if (await context.Users.Where(x => x.Email == request.user.Email).AnyAsync(cancellationToken))
                 {
                     var message = $"Email already exists in database";
                     // logger.LogWarning(message);

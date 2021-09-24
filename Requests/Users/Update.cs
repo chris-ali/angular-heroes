@@ -12,21 +12,17 @@ namespace angular_heroes.Requests.Users
     {
         // TODO make user wrapper here that has password; Models.User should just have JWT token 
 
-        public record Command(User user)  : IRequest<User>;
+        public record Command(User user) : IRequest<User>;
 
-        public class CommandHandler
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, User>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<User> Handle(Command request, CancellationToken cancellationToken)
             {
-                var data = await context.FindAsync<User>(request.user.Id, cancellationToken);
+                var data = await context.FindAsync<User>(new object[] { request.user.Id }, cancellationToken);
 
                 if (data == null) 
                 {

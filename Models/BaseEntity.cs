@@ -13,5 +13,8 @@ namespace angular_heroes.Models
 
         [JsonPropertyName("createdDate")]
         public DateTime CreatedDate { get; set; }
+
+        [JsonPropertyName("updatedDate")]
+        public DateTime UpdatedDate { get; set; }
     }
 }

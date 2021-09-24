@@ -15,14 +15,10 @@ namespace angular_heroes.Requests.Heroes
     {
         public record Query(string userName) : IRequest<IList<Hero>>;
 
-        public class QueryHandler : IRequestHandler<Query, IList<Hero>>
+        public class QueryHandler : BaseRequest, IRequestHandler<Query, IList<Hero>>
         {
-            private readonly HeroesDbContext context;
-
-            public QueryHandler(HeroesDbContext context)
+            public QueryHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<IList<Hero>> Handle(Query request, CancellationToken cancellationToken)
@@ -38,7 +34,7 @@ namespace angular_heroes.Requests.Heroes
                     .Include(x => x.Users)
                     .Where(x => x.Users
                     .Any(x => x.UserName == request.userName))
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
                 
                 if (data.Count == 0)
                 {

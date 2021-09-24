@@ -10,21 +10,17 @@ namespace angular_heroes.Requests.Heroes
 {
   public class Delete
     {
-        public record Command(int id)  : IRequest<Hero>;
+        public record Command(int id) : IRequest<Hero>;
 
-        public class CommandHandler : IRequestHandler<Command, Hero>
+        public class CommandHandler : BaseRequest, IRequestHandler<Command, Hero>
         {
-            private readonly HeroesDbContext context;
-
-            public CommandHandler(HeroesDbContext context)
+            public CommandHandler(HeroesDbContext context) : base(context)
             {
-                this.context = context;
-                context.Database.EnsureCreated();
             }
 
             public async Task<Hero> Handle(Command request, CancellationToken cancellationToken)
             {
-                var data = await context.FindAsync<Hero>(request.id);
+                var data = await context.FindAsync<Hero>(new object[] { request.id }, cancellationToken);
 
                 if (data == null) 
                 {
