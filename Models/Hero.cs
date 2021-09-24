@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace angular_heroes.Models 
+namespace angular_heroes.Models
 {
     public class Hero : BaseEntity
     {

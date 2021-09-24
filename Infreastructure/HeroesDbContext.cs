@@ -2,7 +2,7 @@ using System;
 using angular_heroes.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace angular_heroes.Data
+namespace angular_heroes.Infrastructure
 {
     public class HeroesDbContext : DbContext
     {

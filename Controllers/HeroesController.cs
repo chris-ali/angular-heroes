@@ -1,107 +1,53 @@
-﻿using angular_heroes.Data;
-using angular_heroes.Models;
+﻿using angular_heroes.Models;
+using angular_heroes.Requests.Heroes;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace angular_heroes.Controllers
 {
-    public class HeroesController : BaseAngularHeroesController
+  public class HeroesController : BaseAngularHeroesController
     {
-        public HeroesController(ILogger<HeroesController> logger, HeroesDbContext context) : base(logger, context)
+        public HeroesController(IMediator mediator) : base(mediator)
         {
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hero>>> GetAll()
+        public async Task<IEnumerable<Hero>> GetAll(CancellationToken cancellationToken)
         {
-            var data = await context.Heroes.ToListAsync();
-            logger.LogDebug($"Found {data.Count} heroes to return...");
-
-            return data;
+            return await mediator.Send(new GetAll.Query(), cancellationToken);
         }
 
         /* [HttpGet("{createdBy}")]
-        public async Task<ActionResult<IEnumerable<Hero>>> GetManyByCreatedBy(string createdBy)
+        public async Task<IEnumerable<Hero>> GetManyByCreatedBy(string createdBy, CancellationToken cancellationToken)
         {
-            var data = context.Heros.Where(x => x.createdBy == createdBy).ToListAsync();
-            logger.LogDebug($"Found {data.Count} heroes to return for user {createdBy}...");
-
-            return data;
+            return await mediator.Send(new GetManyByCreatedBy.Query(createdBy), cancellationToken);
         } */
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Hero>> GetOne(int id)
+        public async Task<Hero> GetOne(int id, CancellationToken cancellationToken)
         {
-            var data = await context.FindAsync<Hero>(id);
-            
-            if (data != null)
-                logger.LogDebug($"Found hero: {data.Id} - {data.Name} to return...");
-            else 
-                logger.LogWarning($"No hero found for id: {id}");
-
-            return data;
+            return await mediator.Send(new GetOneById.Query(id), cancellationToken);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Hero>> Update(Hero hero)
+        public async Task<Hero> Update(Hero hero, CancellationToken cancellationToken)
         {
-            var data = await context.FindAsync<Hero>(hero.Id);
-
-            if (data == null) 
-            {
-                logger.LogWarning($"No hero found for id: {hero.Id}");
-
-                return NotFound();
-            }
-            
-            logger.LogDebug($"Found hero: {data.Id} - {data.Name} to update...");
-
-            data.Name = hero.Name;
-            data.Power = hero.Power;
-            
-            context.Update<Hero>(data);
-            await context.SaveChangesAsync();
-
-            logger.LogDebug($"...updated successfully!");
-
-            return NoContent();
+            return await mediator.Send(new Update.Command(hero), cancellationToken);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Hero>> Create(Hero hero)
+        public async Task<Hero> Create(Hero hero, CancellationToken cancellationToken)
         {
-            await context.AddAsync<Hero>(hero);
-            await context.SaveChangesAsync();
-
-            logger.LogDebug($"Added new hero: {hero.Id} - {hero.Name}!");
-
-            return CreatedAtAction(nameof(GetOne), hero.Id, hero);
+            return await mediator.Send(new Create.Command(hero), cancellationToken);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Hero>> Delete(int id)
+        public async Task<Hero> Delete(int id, CancellationToken cancellationToken)
         {
-            var data = await context.FindAsync<Hero>(id);
-
-            if (data == null) 
-            {
-                logger.LogWarning($"No hero found to delete for id: {id}!");
-
-                return NotFound();
-            }
-            
-            logger.LogDebug($"Found hero: {data.Id} - {data.Name} to delete...");
-
-            context.Remove(data);
-            await context.SaveChangesAsync();
-            
-            logger.LogDebug($"...deleted successfully!");
-
-            return NoContent();
+            return await mediator.Send(new Delete.Command(id), cancellationToken);
         }
     }
 }

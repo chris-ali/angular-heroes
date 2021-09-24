@@ -1,16 +1,19 @@
-using angular_heroes.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using System.Reflection;
+using angular_heroes.Infrastructure;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace angular_heroes
 {
-    public class Startup
+  public class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -22,6 +25,8 @@ namespace angular_heroes
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+            
             services.AddControllersWithViews();
 
             services.AddSwaggerGen();
@@ -34,6 +39,11 @@ namespace angular_heroes
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            services.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
+            //TODO Add logging
+            //services.AddScoped<ILogger, NeedALogger>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
