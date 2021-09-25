@@ -1,6 +1,5 @@
-﻿using angular_heroes.Data;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace angular_heroes.Controllers
 {
@@ -8,15 +7,11 @@ namespace angular_heroes.Controllers
     [Route("api/[controller]")]
     public class BaseAngularHeroesController : ControllerBase
     {
-        protected readonly HeroesDbContext context;
-        protected readonly ILogger<BaseAngularHeroesController> logger;
+        protected readonly IMediator mediator;
 
-        public BaseAngularHeroesController(ILogger<BaseAngularHeroesController> logger, HeroesDbContext context)
+        public BaseAngularHeroesController(IMediator mediator)
         {
-            this.logger = logger;
-            this.context = context;
-
-            context.Database.EnsureCreated();
+            this.mediator = mediator;
         }
     }
 }
